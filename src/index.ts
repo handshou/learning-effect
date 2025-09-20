@@ -1,22 +1,18 @@
-import { Effect } from "effect"
+import { Effect, Data } from "effect"
 
-interface FetchError {
-  readonly _tag: 'fetchError'
-}
+class FetchError extends Data.TaggedError("fetchError")<Readonly<{}>>{}
 
-interface JsonError {
-  readonly _tag: 'jsonError'
-}
+class JsonError extends Data.TaggedError("jsonError")<Readonly<{}>>{}
 
 const fetchRequest = Effect.tryPromise({
   try: () => fetch("https://pokeapi.co/api/v2/pokemon/garchomp/"),
-  catch: (): FetchError => ({ _tag: "fetchError" }),
+  catch: () => new FetchError(),
 })
 
 const jsonResponse = (response: Response) =>
   Effect.tryPromise({
     try: () => response.json(),
-    catch: (): JsonError => ({ _tag: "jsonError" }),
+    catch: () => new JsonError(), 
 })
 
 const savePokemon = (pokemon: unknown) =>
@@ -27,7 +23,7 @@ const savePokemon = (pokemon: unknown) =>
 const main = fetchRequest.pipe(
   Effect.filterOrFail(
     (response) => response.ok,
-    () => ({ _tag: "fetchError" })
+    () => new FetchError(),
   ),
   Effect.flatMap(jsonResponse),
   Effect.flatMap(savePokemon),

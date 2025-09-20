@@ -1,11 +1,23 @@
 import { Effect } from "effect"
 
-const fetchRequest = Effect.tryPromise(() =>
-  fetch("https://pokeapi.co/api/v2/pokemon/garchomp/")
-)
+interface FetchError {
+  readonly _tag: 'fetchError'
+}
+
+interface JsonError {
+  readonly _tag: 'jsonError'
+}
+
+const fetchRequest = Effect.tryPromise({
+  try: () => fetch("https://pokeapi.co/api/v2/pokemon/garchomp/"),
+  catch: (): FetchError => ({ _tag: "fetchError" }),
+})
 
 const jsonResponse = (response: Response) =>
-  Effect.tryPromise(() => response.json())
+  Effect.tryPromise({
+    try: () => response.json(),
+    catch: (): JsonError => ({ _tag: "jsonError" }),
+})
 
 const savePokemon = (pokemon: unknown) =>
   Effect.tryPromise(() =>

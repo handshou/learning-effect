@@ -1,12 +1,12 @@
 import { Effect, Data, Schema } from "effect"
 
-const Pokemon = Schema.Struct({
+class Pokemon extends Schema.Class<Pokemon>("Pokemon")({
   id: Schema.Number,
   order: Schema.Number,
   name: Schema.String,
   height: Schema.Number,
   weight: Schema.Number,
-})
+}) {}
 
 const decodePokemon = Schema.decodeUnknown(Pokemon)
 
@@ -28,7 +28,7 @@ const jsonResponse = (response: Response) =>
 const program = Effect.gen(function* () {
    const response = yield* fetchRequest 
    if (!response.ok) {
-     yield* new FetchError()
+     return yield* new FetchError()
    }
    const json = yield* jsonResponse(response)
    return yield* decodePokemon(json)
@@ -36,9 +36,9 @@ const program = Effect.gen(function* () {
 
 const main = program.pipe(
   Effect.catchTags({
-    fetchError: () => Effect.log("fetch error"),
-    jsonError: () => Effect.log("json error"),
-    ParseError: () => Effect.log("parse error"),
+    fetchError: () => Effect.succeed("fetch error"),
+    jsonError: () => Effect.succeed("json error"),
+    ParseError: () => Effect.succeed("parse error"),
   })
 )
 

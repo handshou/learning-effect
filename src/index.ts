@@ -27,9 +27,11 @@ const savePokemon = (pokemon: unknown) =>
 const main = fetchRequest.pipe(
   Effect.flatMap(jsonResponse),
   Effect.flatMap(savePokemon),
-  Effect.catchTag("fetchError", () => Effect.succeed("Fetch error")),
-  Effect.catchTag("jsonError", () => Effect.succeed("Json error")),
-  Effect.catchTag("UnknownException", () => Effect.succeed("There was an error")),
+  Effect.catchTags({
+    fetchError: () => Effect.succeed("fetch error"),
+    jsonError: () => Effect.succeed("json error"),
+    UnknownException: () => Effect.succeed("unknown error"),
+  })
 )
 
 Effect.runPromise(main).then(console.log)

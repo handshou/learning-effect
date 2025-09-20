@@ -1,4 +1,14 @@
-import { Effect, Data } from "effect"
+import { Effect, Data, Schema } from "effect"
+
+const Pokemon = Schema.Struct({
+  id: Schema.Number,
+  order: Schema.Number,
+  name: Schema.String,
+  height: Schema.Number,
+  weight: Schema.Number,
+})
+
+const decodePokemon = Schema.decodeUnknown(Pokemon)
 
 class FetchError extends Data.TaggedError("fetchError")<Readonly<{}>>{}
 

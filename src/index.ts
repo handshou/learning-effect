@@ -1,15 +1,8 @@
 import { Effect, Schema, Config } from "effect"
 import { FetchError, JsonError } from "./errors"
+import { Pokemon } from "./schemas"
 
 const config = Config.string("BASE_URL")
-
-class Pokemon extends Schema.Class<Pokemon>("Pokemon")({
-  id: Schema.Number,
-  order: Schema.Number,
-  name: Schema.String,
-  height: Schema.Number,
-  weight: Schema.Number,
-}) {}
 
 const getPokemon = Effect.gen(function* () {
   const baseUrl = yield* config

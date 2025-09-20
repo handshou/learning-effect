@@ -7,9 +7,14 @@ const fetchRequest = Effect.tryPromise(() =>
 const jsonResponse = (response: Response) =>
   Effect.tryPromise(() => response.json())
 
+const savePokemon = (pokemon: unknown) =>
+  Effect.tryPromise(() =>
+    fetch("/api/pokemon", { body: JSON.stringify(pokemon) })
+  )
+
 const main = Effect.flatMap(
-  fetchRequest,
-  jsonResponse,
+  Effect.flatMap(fetchRequest, jsonResponse),
+  savePokemon
 )
 
 Effect.runPromise(main).then(console.log)

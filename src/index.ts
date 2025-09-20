@@ -10,34 +10,28 @@ class Pokemon extends Schema.Class<Pokemon>("Pokemon")({
   weight: Schema.Number,
 }) {}
 
-const decodePokemon = Schema.decodeUnknown(Pokemon)
-
 class FetchError extends Data.TaggedError("fetchError")<Readonly<{}>>{}
 
 class JsonError extends Data.TaggedError("jsonError")<Readonly<{}>>{}
 
-const fetchRequest = (baseUrl: string) => Effect.tryPromise({
-  try: () => fetch(`${baseUrl}/api/v2/pokemon/garchomp/`),
-  catch: () => new FetchError(),
-})
-
-const jsonResponse = (response: Response) =>
-  Effect.tryPromise({
-    try: () => response.json(),
-    catch: () => new JsonError(), 
-})
-
-const program = Effect.gen(function* () {
+const getPokemon = Effect.gen(function* () {
   const baseUrl = yield* config
-  const response = yield* fetchRequest(baseUrl) 
+  const response = yield* Effect.tryPromise({
+    try: () => fetch(`${baseUrl}/api/v2/pokemon/garchomp/`),
+    catch: () => new FetchError(),
+  })
   if (!response.ok) {
     return yield* new FetchError()
   }
-  const json = yield* jsonResponse(response)
-  return yield* decodePokemon(json)
+  const json = yield* Effect.tryPromise({
+    try: () => response.json(),
+    catch: () => new JsonError(), 
+  })
+
+  return yield* Schema.decodeUnknown(Pokemon)(json)
 })
 
-const main = program.pipe(
+const main = getPokemon.pipe(
   Effect.catchTags({
     fetchError: () => Effect.succeed("fetch error"),
     jsonError: () => Effect.succeed("json error"),

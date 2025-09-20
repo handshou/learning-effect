@@ -15,23 +15,12 @@ const jsonResponse = (response: Response) =>
     catch: () => new JsonError(), 
 })
 
-const savePokemon = (pokemon: unknown) =>
-  Effect.tryPromise(() =>
-    fetch("/api/pokemon", { body: JSON.stringify(pokemon) })
-  )
-
-const main = fetchRequest.pipe(
-  Effect.filterOrFail(
-    (response) => response.ok,
-    () => new FetchError(),
-  ),
-  Effect.flatMap(jsonResponse),
-  Effect.flatMap(savePokemon),
-  Effect.catchTags({
-    fetchError: () => Effect.succeed("fetch error"),
-    jsonError: () => Effect.succeed("json error"),
-    UnknownException: () => Effect.succeed("unknown error"),
-  })
-)
+const main = Effect.gen(function* () {
+   const response = yield* fetchRequest 
+   if (!response.ok) {
+     yield* new FetchError()
+   }
+   return yield* jsonResponse(response)
+})
 
 Effect.runPromise(main).then(console.log)

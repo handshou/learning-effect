@@ -1,4 +1,6 @@
-import { Effect, Data, Schema } from "effect"
+import { Effect, Data, Schema, Config } from "effect"
+
+const config = Config.string("BASE_URL")
 
 class Pokemon extends Schema.Class<Pokemon>("Pokemon")({
   id: Schema.Number,
@@ -14,8 +16,8 @@ class FetchError extends Data.TaggedError("fetchError")<Readonly<{}>>{}
 
 class JsonError extends Data.TaggedError("jsonError")<Readonly<{}>>{}
 
-const fetchRequest = Effect.tryPromise({
-  try: () => fetch("https://pokeapi.co/api/v2/pokemon/garchomp/"),
+const fetchRequest = (baseUrl: string) => Effect.tryPromise({
+  try: () => fetch(`${baseUrl}/api/v2/pokemon/garchomp/`),
   catch: () => new FetchError(),
 })
 
@@ -26,12 +28,13 @@ const jsonResponse = (response: Response) =>
 })
 
 const program = Effect.gen(function* () {
-   const response = yield* fetchRequest 
-   if (!response.ok) {
-     return yield* new FetchError()
-   }
-   const json = yield* jsonResponse(response)
-   return yield* decodePokemon(json)
+  const baseUrl = yield* config
+  const response = yield* fetchRequest(baseUrl) 
+  if (!response.ok) {
+    return yield* new FetchError()
+  }
+  const json = yield* jsonResponse(response)
+  return yield* decodePokemon(json)
 })
 
 const main = program.pipe(
@@ -39,6 +42,7 @@ const main = program.pipe(
     fetchError: () => Effect.succeed("fetch error"),
     jsonError: () => Effect.succeed("json error"),
     ParseError: () => Effect.succeed("parse error"),
+    ConfigError: () => Effect.succeed("config error"),
   })
 )
 

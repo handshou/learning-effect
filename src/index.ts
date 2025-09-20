@@ -1,4 +1,4 @@
-import { Effect, pipe } from "effect"
+import { Effect } from "effect"
 
 const fetchRequest = Effect.tryPromise(() =>
   fetch("https://pokeapi.co/api/v2/pokemon/garchomp/")
@@ -12,8 +12,7 @@ const savePokemon = (pokemon: unknown) =>
     fetch("/api/pokemon", { body: JSON.stringify(pokemon) })
   )
 
-const main = pipe(
-  fetchRequest,
+const main = fetchRequest.pipe(
   Effect.flatMap(jsonResponse),
   Effect.flatMap(savePokemon)
 )

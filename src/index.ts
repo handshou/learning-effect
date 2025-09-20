@@ -30,13 +30,15 @@ const program = Effect.gen(function* () {
    if (!response.ok) {
      yield* new FetchError()
    }
-   return yield* jsonResponse(response)
+   const json = yield* jsonResponse(response)
+   return yield* decodePokemon(json)
 })
 
 const main = program.pipe(
   Effect.catchTags({
     fetchError: () => Effect.log("fetch error"),
     jsonError: () => Effect.log("json error"),
+    ParseError: () => Effect.log("parse error"),
   })
 )
 

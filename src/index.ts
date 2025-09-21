@@ -11,7 +11,7 @@ const program = Effect.gen(function* () {
 
 const runnable = program.pipe(
     Effect.provideService(PokeApi, PokeApi.Live),
-    Effect.provideService(PokemonCollection, PokemonCollection.Live),
+    Effect.provide(PokemonCollection.Live),
     Effect.provideServiceEffect(BuildPokeApiUrl, BuildPokeApiUrl.Live),
     Effect.provideServiceEffect(PokeApiUrl, PokeApiUrl.Live)
 )

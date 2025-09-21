@@ -1,4 +1,4 @@
-import { Effect } from "effect"
+import { Effect, Layer } from "effect"
 import { PokeApi } from "./PokeApi"
 import { PokemonCollection } from "./PokemonCollection"
 import { BuildPokeApiUrl } from "./BuildPokeApiUrl"
@@ -9,12 +9,14 @@ const program = Effect.gen(function* () {
   return yield* pokeApi.getPokemon
 })
 
-const runnable = program.pipe(
-    Effect.provide(PokeApi.Live),
-    Effect.provide(PokemonCollection.Live),
-    Effect.provide(BuildPokeApiUrl.Live),
-    Effect.provide(PokeApiUrl.Live)
+const MainLayer = Layer.mergeAll(
+  PokeApi.Live,
+  PokemonCollection.Live,
+  BuildPokeApiUrl.Live.pipe(Layer.provide(PokeApiUrl.Live)),
+  PokeApiUrl.Live,
 )
+
+const runnable = program.pipe(Effect.provide(MainLayer))
 
 const main = runnable.pipe(
   Effect.catchTags({

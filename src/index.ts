@@ -1,4 +1,4 @@
-import { Effect, Layer } from 'effect'
+import { Effect, Layer, ManagedRuntime } from 'effect'
 import { PokeApi } from './PokeApi'
 
 const program = Effect.gen(function* () {
@@ -8,15 +8,14 @@ const program = Effect.gen(function* () {
 
 const MainLayer = Layer.mergeAll(PokeApi.Default)
 
-const runnable = program.pipe(Effect.provide(MainLayer))
+const PokemonRuntime = ManagedRuntime.make(MainLayer)
 
-const main = runnable.pipe(
+const main = program.pipe(
   Effect.catchTags({
     fetchError: () => Effect.succeed('fetch error'),
     jsonError: () => Effect.succeed('json error'),
     ParseError: () => Effect.succeed('parse error'),
-    ConfigError: () => Effect.succeed('config error'),
   }),
 )
 
-Effect.runPromise(main).then(console.log)
+PokemonRuntime.runPromise(main).then(console.log)

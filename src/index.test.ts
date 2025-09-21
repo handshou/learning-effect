@@ -1,4 +1,4 @@
-import { ConfigProvider, Effect, Layer } from 'effect'
+import { ConfigProvider, Effect, Layer, ManagedRuntime } from 'effect'
 import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
 import { server } from '../test/node'
 import { PokeApi } from './PokeApi'
@@ -11,6 +11,8 @@ const ConfigProviderLayer = Layer.setConfigProvider(TestConfigProvider)
 
 const MainLayer = PokeApi.Default.pipe(Layer.provide(ConfigProviderLayer))
 
+const TestingRuntime = ManagedRuntime.make(MainLayer)
+
 const program = Effect.gen(function* () {
   const pokeApi = yield* PokeApi
   return yield* pokeApi.getPokemon
@@ -19,7 +21,7 @@ const program = Effect.gen(function* () {
 const main = program.pipe(Effect.provide(MainLayer))
 
 it('returns a valid pokemon', async () => {
-  const response = await Effect.runPromise(main)
+  const response = await TestingRuntime.runPromise(main)
   expect(response).toEqual({
     id: 1,
     height: 10,

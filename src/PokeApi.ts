@@ -3,6 +3,14 @@ import type { ConfigError } from "effect/ConfigError"
 import { FetchError, JsonError } from "./errors"
 import { Pokemon } from "./schemas"
 
+interface _PokeApi1 {
+    readonly _: unique symbol
+}
+
+interface _PokeApi2 {
+    readonly _: unique symbol
+}
+
 export interface PokeApi {
     readonly getPokemon: Effect.Effect<
         Pokemon,
@@ -10,7 +18,9 @@ export interface PokeApi {
     >
 }
 
-export const PokeApi = Context.GenericTag<PokeApi>("PokeApi")
+export const PokeApi = Context.GenericTag<_PokeApi1, PokeApi>("PokeApi1")
+
+export const PokeApi2 = Context.GenericTag<_PokeApi2, PokeApi>("PokeApi2")
 
 export const PokeApiLive = PokeApi.of({
     getPokemon: Effect.gen(function* () {

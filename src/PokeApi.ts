@@ -1,4 +1,4 @@
-import { Schema, Context, Effect } from "effect"
+import { Schema, Context, Effect, Layer } from "effect"
 import { FetchError, JsonError } from "./errors"
 import { Pokemon } from "./schemas"
 import { PokemonCollection } from "./PokemonCollection"
@@ -30,7 +30,7 @@ const make = {
 }
 
 export class PokeApi extends Context.Tag("PokeApi")<PokeApi, typeof make>() {
-    static readonly Live = PokeApi.of(make)
+    static readonly Live = Layer.succeed(this, make)
     static readonly Test = PokeApi.of({
         getPokemon: Effect.succeed({
             id: 1,

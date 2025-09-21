@@ -38,7 +38,7 @@ export class PokeApi extends Context.Tag("PokeApi")<
     static readonly Live = Layer.effect(this, make).pipe(
         Layer.provide(Layer.mergeAll(
             PokemonCollection.Default,
-            BuildPokeApiUrl.Live,
+            BuildPokeApiUrl.Default,
         )),
     )
     static readonly Test = PokeApi.of({

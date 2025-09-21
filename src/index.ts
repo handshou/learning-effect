@@ -13,7 +13,7 @@ const runnable = program.pipe(
     Effect.provide(PokeApi.Live),
     Effect.provide(PokemonCollection.Live),
     Effect.provideServiceEffect(BuildPokeApiUrl, BuildPokeApiUrl.Live),
-    Effect.provideServiceEffect(PokeApiUrl, PokeApiUrl.Live)
+    Effect.provide(PokeApiUrl.Live)
 )
 
 const main = runnable.pipe(
